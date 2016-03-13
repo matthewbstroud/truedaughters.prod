@@ -1,0 +1,96 @@
+<apex:page id="mailerPage" standardController="Campaign"
+           extensions="mbs_CampainMailerExtension">       
+    <apex:sectionHeader title="Campaign Mailer"/>
+    <apex:pageMessages id="errorMessages"></apex:pageMessages>
+    <apex:pageBlock title="Campaign Details" >        
+        <apex:pageBlockSection columns="1">            
+            <apex:outputField value="{!campaign.Name}"/>
+            <apex:outputField value="{!campaign.Type}"/>
+            <apex:outputField value="{!campaign.Description}"/>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+    <apex:form id="campaignMailerForm">
+        <apex:inputHidden id="pageMode" value="{!currentPage}" />
+        <apex:pageBlock id="mailerDetails" rendered="{!IsEditPage}" title="Mailer Details" mode="detail">
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Cancel" title="Cancel" action="{!cancel}" />
+                <apex:commandButton value="Next" title="Next" action="{!previewMailer}" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="1" title="Who should this mailer be sent to?">
+                <apex:inputCheckbox id="includeMember" label="Campain members" title="Campain members"
+                                    value="{!mailMembers}" />
+                <apex:inputCheckbox id="includeGuardian" label="Parent or Guardian of member" title="Parent or Guardian of member"
+                                    value="{!mailMemberGuardians}" />
+            </apex:pageBlockSection>
+            <apex:pageBlockSection columns="1" title="What should the subject say?">
+                <apex:inputText required="true" id="eSubject" label="Subject" size="100" value="{!emailSubject}" />
+            </apex:pageBlockSection>
+            <apex:pageBlockSection id="images" collapsible="true" columns="1" showHeader="true" title="Externally Available Images">
+                <apex:pageBlockTable id="imageTable" columns="4" value="{!EmailImages}" var="emailImage">
+                    <apex:column headerValue="Image Name" value="{!emailImage.Name}" />
+                    <apex:column headerValue="Thumbnail"><apex:image id="thumbnail" url="{!emailImage.ExternalLink}" width="64" height="64" /></apex:column>
+                    <apex:column id="externalUrl" headerValue="External Link" value="{!emailImage.ExternalLink}" />
+                    <apex:column id="imageCreatedDate" headerValue="Created Date" value="{!emailImage.CreatedDate}" />
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+            <script> twistSection(document.getElementById('{!$Component.mailerDetails.images}').getElementsByTagName('img')[0]) </script>
+            <apex:pageBlockSection columns="1" title="What should the body say?">
+                <apex:inputTextarea label="Body" cols="72" rows="60" required="true" richText="true"  value="{!emailBodyHtml}" id="htmlEdit" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:pageBlock id="previewBlock" rendered="{!IsPreviewPage}" title="Preview Mailing" mode="detail">
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Back" title="Back" action="{!goBack}" />
+                <apex:commandButton value="Send" title="Send" action="{!sendMail}" />
+            </apex:pageBlockButtons>            
+            <apex:pageBlockSection collapsible="true" columns="2" showHeader="true" title="Email Recipients">
+                <apex:pageBlockSection collapsible="false" rendered="{!selectedMembers != null && selectedMembers.size > 0}" columns="3" title="Selected Members">
+                    <apex:pageBlockTable value="{!selectedMembers}" var="contact">
+                        <apex:column style="white-space: nowrap" headerValue="Member">
+                            <apex:outputLink target="_blank" value="/{!contact.Id}">{!contact.Name}</apex:outputLink>
+                        </apex:column>
+                        <apex:column style="white-space: nowrap" value="{!contact.Email}"/>
+                        <apex:column style="white-space: nowrap" value="{!contact.HasOptedOutOfEmail}"/>
+                        <apex:column >
+                            <apex:commandButton action="{!removeMemberFromList}" reRender="previewBlock, errorMessages" value="Remove">
+                                <apex:param value="{!contact.Id}" name="memberId" />
+                            </apex:commandButton>
+                        </apex:column>   
+                    </apex:pageBlockTable>
+                </apex:pageBlockSection>
+                <apex:pageBlockSection id="guardianSection" collapsible="false" rendered="{!selectedGuardians != null && selectedGuardians.size > 0}" columns="5" title="Selected Guardians">
+                    <apex:pageBlockTable value="{!selectedGuardians}" var="guardian">
+                        <apex:column style="white-space: nowrap" headerValue="Guardian" >
+                            <apex:outputLink target="_blank" value="/{!guardian.npe4__RelatedContact__r.Id}">{!guardian.npe4__RelatedContact__r.Name}</apex:outputLink>
+                        </apex:column>
+                        <apex:column style="white-space: nowrap" value="{!guardian.npe4__RelatedContact__r.Email}"/>
+                        <apex:column style="white-space: nowrap" value="{!guardian.npe4__Relationship_Explanation__c}"/>
+                        <apex:column style="white-space: nowrap" value="{!guardian.npe4__RelatedContact__r.HasOptedOutOfEmail}"/>
+                        <apex:column >
+                            <apex:commandButton action="{!removeGuardianFromList}" reRender="previewBlock, errorMessages" value="Remove">
+                                <apex:param value="{!guardian.Id}" name="guardianId" />
+                            </apex:commandButton>
+                        </apex:column>                        
+                    </apex:pageBlockTable>
+                </apex:pageBlockSection>
+            </apex:pageBlockSection>
+			<apex:pageBlockSection collapsible="false" columns="1" title="Email Preview">
+                <apex:outputText label="Subject" escape="false" value="{!emailSubject}"></apex:outputText>
+                <apex:outputText label="Body" escape="false" value="{!HtmlPreview}"></apex:outputText>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:pageBlock id="resultsBlock" rendered="{!IsResultPage}" title="Results" mode="detail">
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Close" title="Close" action="{!view}" />
+            </apex:pageBlockButtons>                      
+			<apex:pageBlockSection collapsible="false" columns="1" title="Recipient List">
+                <apex:pageBlockTable value="{!sentContacts}" var="contact">
+                    <apex:column style="white-space: nowrap" headerValue="Recipient">
+                        <apex:outputLink target="_blank" value="/{!contact.Id}">{!contact.Name}</apex:outputLink>
+                   	</apex:column>
+                    <apex:column style="white-space: nowrap" value="{!contact.Email}"/>
+              	</apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
