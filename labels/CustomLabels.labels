@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>Attended_Event</fullName>
+        <categories>Attended,RSVP</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Attended Event</shortDescription>
+        <value>This person attended an event held by TRUE Daughters.</value>
+    </labels>
+    <labels>
+        <fullName>Invited_By</fullName>
+        <categories>Invitee,connected</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Invited By</shortDescription>
+        <value>This person invited another person who attended an event. This is how we now have connection with said person.</value>
+    </labels>
+</CustomLabels>
