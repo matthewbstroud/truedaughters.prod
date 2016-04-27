@@ -223,6 +223,10 @@
         <apexPage>Template_MassUpdateCustomObject</apexPage>
         <enabled>true</enabled>
     </pageAccesses>
+    <pageAccesses>
+        <apexPage>mbs_CampaignMailer</apexPage>
+        <enabled>true</enabled>
+    </pageAccesses>
     <tabVisibilities>
         <tab>About_Mass_Update_and_Mass_Edit</tab>
         <visibility>DefaultOn</visibility>
